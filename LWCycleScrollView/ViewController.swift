@@ -15,20 +15,27 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let placeHolderImage = UIImage(named: "buildings")
+        
+        // 通过本地图片数组更新轮播图
+        
         var images = [UIImage]()
         var titles = [String]()
         for i in 1...4 {
             images.append(UIImage(named: "h" + "\(i).jpg")!)
             titles.append("dengmayixyjjjghffghgjhgkgyuiga" + "\(i)")
         }
-
         bannerView1.show(images: images,
                          titles: titles,
                          alignment: .Right) { (index) in
                             print(index)
-                            
         }
+        
+        
+        // 通过urls地址数组更新轮播图
+        
+        let placeHolderImage = UIImage(named: "buildings")
+        
+        
         
     }
 

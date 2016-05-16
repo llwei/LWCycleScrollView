@@ -42,7 +42,7 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     private var rightTitleLabel = UILabel()
     private var timer: NSTimer?
     
-    private var placeHolderImage: UIImage?
+    private var placeholderImage: UIImage?
     private var titles: [String]?
     private var images: [UIImage]? {
         didSet {
@@ -154,6 +154,20 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
+    private func resetShow() {
+        
+        collectionView.reloadData()
+        
+        invalidateTimer()
+        setupTimer()
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 10), dispatch_get_main_queue()) {
+            let resourceCount = self.totalItemCount / CountScale
+            self.collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: resourceCount * Int(CountScale / 2), inSection: 0),
+                                                        atScrollPosition: .None,
+                                                        animated: false)
+        }
+    }
     
     
     // MARK: - Layout
@@ -268,23 +282,16 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
             invalidateTimer()
             return
         }
-//        
-//        let resourceCount = totalItemCount / CountScale
-//        let currentIndex = Int(collectionView.contentOffset.x / collectionView.bounds.size.width)
-//        var targetIndex = currentIndex + 1
-//        
-//        if targetIndex >= totalItemCount - 1 {
-//            targetIndex = targetIndex % resourceCount + resourceCount * CountScale / 2
-//            collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: targetIndex, inSection: 0),
-//                                                   atScrollPosition: .None,
-//                                                   animated: false)
-//        }
-//        
-//        collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: targetIndex, inSection: 0),
-//                                               atScrollPosition: .None,
-//                                               animated: true)
-//        
-//        showContent(atIndex: targetIndex % resourceCount)
+        
+        let resourceCount = totalItemCount / CountScale
+        let currentIndex = Int(collectionView.contentOffset.x / collectionView.bounds.size.width)
+        let targetIndex = currentIndex + 1
+        
+        collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: targetIndex, inSection: 0),
+                                               atScrollPosition: .None,
+                                               animated: true)
+        
+        showContent(atIndex: targetIndex % resourceCount)
     }
     
     
@@ -326,9 +333,14 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         if let image = images?[itemIndex] {
             cell.imageView.image = image
         } else if let imageURL = imageURLs?[itemIndex] {
-            
+            // TODO: - 导入SDImage
+//            if let image = placeholderImage {
+//                cell.imageView.sd_setImage(NSURL(string: imageURL ?? ""), placeholderImage: image)
+//            } else {
+//                cell.imageView.sd_setImage(NSURL(string: imageURL ?? ""))
+//            }
         } else {
-            cell.imageView.image = placeHolderImage
+            cell.imageView.image = placeholderImage
         }
         
         return cell
@@ -343,18 +355,22 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
-    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
-        
-        if indexPath.item == totalItemCount - 1 {
-            collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: indexPath.item * CountScale / 2, inSection: 0),
-                                                   atScrollPosition: .None,
-                                                   animated: false)
-        }
-        
-    }
-    
     
     // MARK: - UIScrollView delegate
+    
+    func scrollViewDidScroll(scrollView: UIScrollView) {
+        
+        let currentIndex = Int(scrollView.contentOffset.x / scrollView.bounds.size.width)
+        guard currentIndex == totalItemCount - 1 else {
+            return
+        }
+        
+        let resourceCount = totalItemCount / CountScale
+        collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: currentIndex % resourceCount + (resourceCount * Int(CountScale / 2)), inSection: 0),
+                                               atScrollPosition: .None,
+                                               animated: false)
+
+    }
     
     func scrollViewWillBeginDragging(scrollView: UIScrollView) {
         invalidateTimer()
@@ -369,6 +385,8 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         setupTimer()
     }
     
+    
+    
 }
 
 
@@ -376,17 +394,52 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
 
 extension LWCycleScrollView {
     
-    func show(images images: [UIImage], titles: [String]?, alignment: LWCycleScrollViewPageContrlAlignment, selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
+    /**
+     通过本地图片数组更新轮播图
+     
+     - parameter images:          本地图片数组
+     - parameter titles:          标题数组
+     - parameter alignment:       pageControl位置
+     - parameter selectedHandler: 回调
+     */
+    func show(images images: [UIImage],
+                     titles: [String]?,
+                     alignment: LWCycleScrollViewPageContrlAlignment,
+                     selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
     
-        invalidateTimer()
         self.images = images
         self.titles = titles
         self.pageContrlAlignment = alignment
-        
-        collectionView.reloadData()
-        setupTimer()
         didSelectedHandler = selectedHandler
+        
+        resetShow()
     }
+    
+    
+    /**
+     通过urls地址数组更新轮播图
+     
+     - parameter imageURLs:        urls地址数组
+     - parameter titles:           标题数组
+     - parameter placeholderImage: 占位图
+     - parameter alignment:        pageControl位置
+     - parameter selectedHandler:  回调
+     */
+    func show(imageURLs imageURLs: [String],
+                        titles: [String]?,
+                        placeholderImage: UIImage?,
+                        alignment: LWCycleScrollViewPageContrlAlignment,
+                        selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
+        
+        self.imageURLs = imageURLs
+        self.titles = titles
+        self.placeholderImage = placeholderImage
+        self.pageContrlAlignment = alignment
+        didSelectedHandler = selectedHandler
+        
+        resetShow()
+    }
+    
     
 }
 
