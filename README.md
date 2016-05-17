@@ -2,7 +2,7 @@
 Banner广告轮播视图
 
 
-    // 通过本地图片数组更新轮播图
+// 通过本地图片数组更新轮播图
 
     @IBOutlet weak var bannerView1: LWCycleScrollView!
 
@@ -19,7 +19,7 @@ Banner广告轮播视图
     }
 
 
-    // 通过urls地址数组更新轮播图
+// 通过urls地址数组更新轮播图
 
     @IBOutlet weak var bannerView2: LWCycleScrollView!
 
