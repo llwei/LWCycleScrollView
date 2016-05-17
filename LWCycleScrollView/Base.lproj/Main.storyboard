@@ -22,23 +22,32 @@
                                 <rect key="frame" x="0.0" y="20" width="320" height="170"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KDo-0C-HBw" customClass="LWCycleScrollView" customModule="LWCycleScrollView" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="398" width="320" height="170"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="KDo-0C-HBw" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="1k4-aw-j7h"/>
                             <constraint firstAttribute="trailing" secondItem="7c5-Po-Wt0" secondAttribute="trailing" id="3uw-eR-Avz"/>
                             <constraint firstItem="7c5-Po-Wt0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="Wop-U5-1zc"/>
                             <constraint firstItem="7c5-Po-Wt0" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.3" id="eWZ-fj-BfH"/>
+                            <constraint firstItem="KDo-0C-HBw" firstAttribute="height" secondItem="8bC-Xf-vdC" secondAttribute="height" multiplier="0.3" id="hXS-HU-4lb"/>
                             <constraint firstItem="7c5-Po-Wt0" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="heN-Sd-KG6"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="KDo-0C-HBw" secondAttribute="bottom" id="nnF-YO-gNB"/>
+                            <constraint firstAttribute="trailing" secondItem="KDo-0C-HBw" secondAttribute="trailing" id="yw0-Ty-UJV"/>
                         </constraints>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
                         <outlet property="bannerView1" destination="7c5-Po-Wt0" id="k7V-sl-Jee"/>
+                        <outlet property="bannerView2" destination="KDo-0C-HBw" id="61k-0i-5aH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="340" y="429"/>
+            <point key="canvasLocation" x="125" y="608"/>
         </scene>
     </scenes>
 </document>

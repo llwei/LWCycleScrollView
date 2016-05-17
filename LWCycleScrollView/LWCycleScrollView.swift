@@ -12,7 +12,7 @@ import UIKit
 private let CellIdentifier = "LWCycleCollectionViewCell"
 
 private let AutoScrollTimeInterval: NSTimeInterval = 5.0
-private let CountScale: Int = 3
+private let CountScale: Int = 5000
 private let TitleFontSize: CGFloat = 14
 private let TitleColor: UIColor = UIColor.whiteColor()
 private let IndicatorHeight: CGFloat = 20
@@ -167,6 +167,18 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
                                                         atScrollPosition: .None,
                                                         animated: false)
         }
+    }
+    
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        
+        if superview == nil {
+            invalidateTimer()
+        }
+    }
+    
+    deinit {
+        print("\(NSStringFromClass(LWCycleScrollView.self)).deinit")
     }
     
     
@@ -333,12 +345,12 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         if let image = images?[itemIndex] {
             cell.imageView.image = image
         } else if let imageURL = imageURLs?[itemIndex] {
-            // TODO: - 导入SDImage
-//            if let image = placeholderImage {
-//                cell.imageView.sd_setImage(NSURL(string: imageURL ?? ""), placeholderImage: image)
-//            } else {
-//                cell.imageView.sd_setImage(NSURL(string: imageURL ?? ""))
-//            }
+            // TODO: - 导入SDWebImage
+            if let image = placeholderImage {
+                cell.imageView.sd_setImageWithURL(NSURL(string: imageURL ?? ""), placeholderImage: image)
+            } else {
+                cell.imageView.sd_setImageWithURL(NSURL(string: imageURL ?? ""))
+            }
         } else {
             cell.imageView.image = placeholderImage
         }
