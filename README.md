@@ -15,7 +15,7 @@ Banner广告轮播视图
     }
     bannerView1.show(images: images,
                      titles: titles,
-                     alignment: .Right) { (index) in
+                     alignment: .Right) { (index, image) in
                         print(index)
     }
 
@@ -31,6 +31,6 @@ Banner广告轮播视图
     bannerView2.show(imageURLs: imageURLs,
                      titles: nil,
                      placeholderImage: placeHolderImage,
-                     alignment: .Left) { (index) in
+                     alignment: .Left) { (index, image) in
                         print(index)
     }
