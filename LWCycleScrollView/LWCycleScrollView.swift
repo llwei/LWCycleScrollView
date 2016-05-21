@@ -11,17 +11,17 @@ import UIKit
 
 private let CellIdentifier = "LWCycleCollectionViewCell"
 
-private let AutoScrollTimeInterval: NSTimeInterval = 5.0
+private let AutoScrollTimeInterval: NSTimeInterval = 5.0                                        // 修改定时器触发时间
 private let CountScale: Int = 5000
-private let TitleFontSize: CGFloat = 14
-private let TitleColor: UIColor = UIColor.whiteColor()
-private let IndicatorHeight: CGFloat = 20
-private let IndicatorBgColor: UIColor = UIColor.blackColor().colorWithAlphaComponent(0.4)
-private let CurrentPageIndicatorTintColor: UIColor = UIColor.groupTableViewBackgroundColor()
+private let TitleFontSize: CGFloat = 14                                                         // 修改文字大小
+private let TitleColor: UIColor = UIColor.whiteColor()                                          // 修改文字颜色
+private let IndicatorHeight: CGFloat = 20                                                       // 修改底部指示器视图高度
+private let IndicatorBgColor: UIColor = UIColor.blackColor().colorWithAlphaComponent(0.4)       // 修改底部指示器视图背景颜色
+private let CurrentPageIndicatorTintColor: UIColor = UIColor.groupTableViewBackgroundColor()    
 private let PageIndicatorTintColor: UIColor = UIColor.lightGrayColor()
 
 
-typealias LWCycleScrollViewDidSelectedHandler = ((index: Int) -> Void)
+typealias LWCycleScrollViewDidSelectedHandler = ((index: Int, image: UIImage?) -> Void)
 
 
 @objc enum LWCycleScrollViewPageContrlAlignment: Int {
@@ -363,7 +363,9 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         let resourceCount = totalItemCount / CountScale
         let itemIndex = indexPath.item % resourceCount
         
-        didSelectedHandler?(index: itemIndex)
+        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! LWCycleScrollViewCell
+        
+        didSelectedHandler?(index: itemIndex, image: cell.imageView.image)
     }
     
     
