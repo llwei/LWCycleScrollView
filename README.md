@@ -1,7 +1,7 @@
 # LWCycleScrollView
 Banner广告轮播视图
 
-    
+Deployment Target iOS 7.0
 
 // 通过本地图片数组更新轮播图
 
