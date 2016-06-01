@@ -166,6 +166,7 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
             self.collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: resourceCount * Int(CountScale / 2), inSection: 0),
                                                         atScrollPosition: .None,
                                                         animated: false)
+            self.showContent(atIndex: 0)
         }
     }
     
