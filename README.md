@@ -34,3 +34,4 @@ Deployment Target iOS 7.0
                      alignment: .Left) { (index, image) in
                         print(index)
     }
+![(logo)](http://code4app.com/data/attachment/forum/201607/06/220016kcjj2x97s6wwjhas.png)
