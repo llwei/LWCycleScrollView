@@ -3,7 +3,7 @@ Banner广告轮播视图
 
 Deployment Target iOS 7.0
 
-// 通过本地图片数组更新轮播图
+一、通过本地图片数组更新轮播图
 
     @IBOutlet weak var bannerView1: LWCycleScrollView!
 
@@ -20,7 +20,7 @@ Deployment Target iOS 7.0
     }
 
 
-// 通过urls地址数组更新轮播图
+二、通过urls地址数组更新轮播图
 
     @IBOutlet weak var bannerView2: LWCycleScrollView!
 
