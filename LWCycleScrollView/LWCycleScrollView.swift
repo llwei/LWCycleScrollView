@@ -8,27 +8,47 @@
 //  Github: https://github.com/llwei/LWCycleScrollView
 
 import UIKit
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 
 private let CellIdentifier = "LWCycleCollectionViewCell"
 
-private let AutoScrollTimeInterval: NSTimeInterval = 5.0                                        // 修改定时器触发时间
+private let AutoScrollTimeInterval: TimeInterval = 5.0                                  // 修改定时器触发时间
 private let CountScale: Int = 5000
-private let TitleFontSize: CGFloat = 14                                                         // 修改文字大小
-private let TitleColor: UIColor = UIColor.whiteColor()                                          // 修改文字颜色
-private let IndicatorHeight: CGFloat = 20                                                       // 修改底部指示器视图高度
-private let IndicatorBgColor: UIColor = UIColor.blackColor().colorWithAlphaComponent(0.4)       // 修改底部指示器视图背景颜色
-private let CurrentPageIndicatorTintColor: UIColor = UIColor.groupTableViewBackgroundColor()    
-private let PageIndicatorTintColor: UIColor = UIColor.lightGrayColor()
+private let TitleFontSize: CGFloat = 14                                                 // 修改文字大小
+private let TitleColor: UIColor = UIColor.white                                         // 修改文字颜色
+private let IndicatorHeight: CGFloat = 20                                               // 修改底部指示器视图高度
+private let IndicatorBgColor: UIColor = UIColor.black.withAlphaComponent(0.4)           // 修改底部指示器视图背景颜色
+private let CurrentPageIndicatorTintColor: UIColor = UIColor.groupTableViewBackground    
+private let PageIndicatorTintColor: UIColor = UIColor.lightGray
 
 
-typealias LWCycleScrollViewDidSelectedHandler = ((index: Int, image: UIImage?) -> Void)
+typealias LWCycleScrollViewDidSelectedHandler = ((_ index: Int, _ image: UIImage?) -> Void)
 
 
 @objc enum LWCycleScrollViewPageContrlAlignment: Int {
-    case Center = 0
-    case Left   = 1
-    case Right  = 2
+    case center = 0
+    case left   = 1
+    case right  = 2
 }
 
 
@@ -36,55 +56,55 @@ typealias LWCycleScrollViewDidSelectedHandler = ((index: Int, image: UIImage?) -
 
 class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataSource {
     
-    private var collectionView: UICollectionView!
-    private var indicatorView = UIView()
-    private var pageControl = UIPageControl()
-    private var leftTitleLabel = UILabel()
-    private var rightTitleLabel = UILabel()
-    private var timer: NSTimer?
+    fileprivate var collectionView: UICollectionView!
+    fileprivate var indicatorView = UIView()
+    fileprivate var pageControl = UIPageControl()
+    fileprivate var leftTitleLabel = UILabel()
+    fileprivate var rightTitleLabel = UILabel()
+    fileprivate var timer: Timer?
     
-    private var placeholderImage: UIImage?
-    private var titles: [String]?
-    private var images: [UIImage]? {
+    fileprivate var placeholderImage: UIImage?
+    fileprivate var titles: [String]?
+    fileprivate var images: [UIImage]? {
         didSet {
             self.totalItemCount = (images?.count ?? 0) * CountScale
             self.pageControl.numberOfPages = images?.count ?? 0
         }
     }
-    private var imageURLs: [String]? {
+    fileprivate var imageURLs: [String]? {
         didSet {
             self.totalItemCount = (imageURLs?.count ?? 0) * CountScale
             self.pageControl.numberOfPages = imageURLs?.count ?? 0
         }
     }
     
-    private var totalItemCount: Int = 0
-    private var pageContrlAlignment: LWCycleScrollViewPageContrlAlignment = .Center {
+    fileprivate var totalItemCount: Int = 0
+    fileprivate var pageContrlAlignment: LWCycleScrollViewPageContrlAlignment = .center {
         didSet {
             switch pageContrlAlignment {
-            case .Center:
+            case .center:
                 self.leftTitleLabel.text = nil
                 self.rightTitleLabel.text = nil
-                self.pageControl.setContentHuggingPriority(249, forAxis: .Horizontal)
-                self.leftTitleLabel.setContentHuggingPriority(250, forAxis: .Horizontal)
-                self.rightTitleLabel.setContentHuggingPriority(250, forAxis: .Horizontal)
-            case .Left:
+                self.pageControl.setContentHuggingPriority(249, for: .horizontal)
+                self.leftTitleLabel.setContentHuggingPriority(250, for: .horizontal)
+                self.rightTitleLabel.setContentHuggingPriority(250, for: .horizontal)
+            case .left:
                 self.leftTitleLabel.text = nil
                 self.rightTitleLabel.text = titles?.first
-                self.pageControl.setContentCompressionResistancePriority(751, forAxis: .Horizontal)
-                self.leftTitleLabel.setContentHuggingPriority(250, forAxis: .Horizontal)
-                self.rightTitleLabel.setContentHuggingPriority(249, forAxis: .Horizontal)
-            case .Right:
+                self.pageControl.setContentCompressionResistancePriority(751, for: .horizontal)
+                self.leftTitleLabel.setContentHuggingPriority(250, for: .horizontal)
+                self.rightTitleLabel.setContentHuggingPriority(249, for: .horizontal)
+            case .right:
                 self.leftTitleLabel.text = titles?.first
                 self.rightTitleLabel.text = nil
-                self.pageControl.setContentCompressionResistancePriority(751, forAxis: .Horizontal)
-                self.leftTitleLabel.setContentHuggingPriority(249, forAxis: .Horizontal)
-                self.rightTitleLabel.setContentHuggingPriority(250, forAxis: .Horizontal)
+                self.pageControl.setContentCompressionResistancePriority(751, for: .horizontal)
+                self.leftTitleLabel.setContentHuggingPriority(249, for: .horizontal)
+                self.rightTitleLabel.setContentHuggingPriority(250, for: .horizontal)
             }
         }
     }
     
-    private var didSelectedHandler: LWCycleScrollViewDidSelectedHandler?
+    fileprivate var didSelectedHandler: LWCycleScrollViewDidSelectedHandler?
     
     
     // MARK: - Initial
@@ -104,23 +124,23 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
-    private func setupCollectionView() {
+    fileprivate func setupCollectionView() {
         // UICollectionViewFlowLayout
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.itemSize = frame.size
         flowLayout.minimumLineSpacing = 0
         flowLayout.minimumInteritemSpacing = 0
-        flowLayout.scrollDirection = .Horizontal
+        flowLayout.scrollDirection = .horizontal
         
         // UICollectionView
         collectionView = UICollectionView(frame: bounds, collectionViewLayout: flowLayout)
-        collectionView.backgroundColor = UIColor.lightGrayColor()
-        collectionView.pagingEnabled = true
+        collectionView.backgroundColor = UIColor.lightGray
+        collectionView.isPagingEnabled = true
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.registerClass(LWCycleScrollViewCell.self, forCellWithReuseIdentifier: CellIdentifier)
+        collectionView.register(LWCycleScrollViewCell.self, forCellWithReuseIdentifier: CellIdentifier)
         addSubview(collectionView)
         
         // Add Constraints
@@ -128,24 +148,24 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
-    private func setupIndicatorView() {
+    fileprivate func setupIndicatorView() {
         
         indicatorView.backgroundColor = IndicatorBgColor
         addSubview(indicatorView)
         
         // TitleLabel
-        leftTitleLabel.backgroundColor = UIColor.clearColor()
-        leftTitleLabel.font = UIFont.boldSystemFontOfSize(TitleFontSize)
+        leftTitleLabel.backgroundColor = UIColor.clear
+        leftTitleLabel.font = UIFont.boldSystemFont(ofSize: TitleFontSize)
         leftTitleLabel.textColor = TitleColor
         indicatorView.addSubview(leftTitleLabel)
         
-        rightTitleLabel.backgroundColor = UIColor.clearColor()
-        rightTitleLabel.font = UIFont.boldSystemFontOfSize(TitleFontSize)
+        rightTitleLabel.backgroundColor = UIColor.clear
+        rightTitleLabel.font = UIFont.boldSystemFont(ofSize: TitleFontSize)
         rightTitleLabel.textColor = TitleColor
         indicatorView.addSubview(rightTitleLabel)
         
         // PageControl
-        pageControl.backgroundColor = UIColor.clearColor()
+        pageControl.backgroundColor = UIColor.clear
         pageControl.currentPageIndicatorTintColor = CurrentPageIndicatorTintColor
         pageControl.pageIndicatorTintColor = PageIndicatorTintColor
         indicatorView.addSubview(pageControl)
@@ -155,17 +175,17 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
-    private func resetShow() {
+    fileprivate func resetShow() {
         
         collectionView.reloadData()
         
         invalidateTimer()
         setupTimer()
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 10), dispatch_get_main_queue()) {
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC) / 10) / Double(NSEC_PER_SEC)) {
             let resourceCount = self.totalItemCount / CountScale
-            self.collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: resourceCount * Int(CountScale / 2), inSection: 0),
-                                                        atScrollPosition: .None,
+            self.collectionView.scrollToItem(at: IndexPath(item: resourceCount * Int(CountScale / 2), section: 0),
+                                                        at: UICollectionViewScrollPosition(),
                                                         animated: false)
             self.showContent(atIndex: 0)
         }
@@ -186,73 +206,73 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     
     // MARK: - Layout
     
-    private func addCollectionViewConstraints() {
+    fileprivate func addCollectionViewConstraints() {
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        let horiConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[collectionView]|",
-                                                                             options: .DirectionLeadingToTrailing,
+        let horiConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|[collectionView]|",
+                                                                             options: NSLayoutFormatOptions(),
                                                                              metrics: nil,
                                                                              views: ["collectionView" : collectionView])
-        let vertiConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[collectionView]|",
-                                                                              options: .DirectionLeadingToTrailing,
+        let vertiConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|[collectionView]|",
+                                                                              options: NSLayoutFormatOptions(),
                                                                               metrics: nil,
                                                                               views: ["collectionView" : collectionView])
         if #available(iOS 8.0, *) {
-            NSLayoutConstraint.activateConstraints(horiConstraints)
-            NSLayoutConstraint.activateConstraints(vertiConstraints)
+            NSLayoutConstraint.activate(horiConstraints)
+            NSLayoutConstraint.activate(vertiConstraints)
         } else {
             addConstraints(horiConstraints)
             addConstraints(vertiConstraints)
         }
     }
     
-    private func addIndicatorViewConstraints() {
+    fileprivate func addIndicatorViewConstraints() {
         
         indicatorView.translatesAutoresizingMaskIntoConstraints = false
         leftTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         rightTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        let indicatorHoriConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[indicatorView]|",
-                                                                                      options: .DirectionLeadingToTrailing,
+        let indicatorHoriConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|[indicatorView]|",
+                                                                                      options: NSLayoutFormatOptions(),
                                                                                       metrics: nil,
                                                                                       views: ["indicatorView" : indicatorView])
         
-        let indicatorVertiConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:[indicatorView(==IndicatorHeight)]|",
-                                                                                       options: .DirectionLeadingToTrailing,
+        let indicatorVertiConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:[indicatorView(==IndicatorHeight)]|",
+                                                                                       options: NSLayoutFormatOptions(),
                                                                                        metrics: ["IndicatorHeight" : IndicatorHeight],
                                                                                        views: ["indicatorView" : indicatorView])
         
-        let horiConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|-8-[leftTitleLabel]-8-[pageControl]-8-[rightTitleLabel]-8-|",
-                                                                             options: .DirectionLeadingToTrailing,
+        let horiConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|-8-[leftTitleLabel]-8-[pageControl]-8-[rightTitleLabel]-8-|",
+                                                                             options: NSLayoutFormatOptions(),
                                                                              metrics: ["8" : 8],
                                                                              views: [
                                                                                 "leftTitleLabel" : leftTitleLabel,
                                                                                 "pageControl" : pageControl,
                                                                                 "rightTitleLabel" : rightTitleLabel])
         
-        let leftTitleVertConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[leftTitleLabel]|",
-                                                                                      options: .DirectionLeadingToTrailing,
+        let leftTitleVertConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|[leftTitleLabel]|",
+                                                                                      options: NSLayoutFormatOptions(),
                                                                                       metrics: nil,
                                                                                       views: ["leftTitleLabel" : leftTitleLabel])
         
-        let pageVertConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[pageControl]|",
-                                                                                 options: .DirectionLeadingToTrailing,
+        let pageVertConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|[pageControl]|",
+                                                                                 options: NSLayoutFormatOptions(),
                                                                                  metrics: nil,
                                                                                  views: ["pageControl" : pageControl])
         
-        let rightTitleVertConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[rightTitleLabel]|",
-                                                                                       options: .DirectionLeadingToTrailing,
+        let rightTitleVertConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|[rightTitleLabel]|",
+                                                                                       options: NSLayoutFormatOptions(),
                                                                                        metrics: nil,
                                                                                        views: ["rightTitleLabel" : rightTitleLabel])
         
         if #available(iOS 8.0, *) {
-            NSLayoutConstraint.activateConstraints(indicatorHoriConstraints)
-            NSLayoutConstraint.activateConstraints(indicatorVertiConstraints)
-            NSLayoutConstraint.activateConstraints(horiConstraints)
-            NSLayoutConstraint.activateConstraints(leftTitleVertConstraints)
-            NSLayoutConstraint.activateConstraints(pageVertConstraints)
-            NSLayoutConstraint.activateConstraints(rightTitleVertConstraints)
+            NSLayoutConstraint.activate(indicatorHoriConstraints)
+            NSLayoutConstraint.activate(indicatorVertiConstraints)
+            NSLayoutConstraint.activate(horiConstraints)
+            NSLayoutConstraint.activate(leftTitleVertConstraints)
+            NSLayoutConstraint.activate(pageVertConstraints)
+            NSLayoutConstraint.activate(rightTitleVertConstraints)
             
         } else {
             addConstraints(indicatorHoriConstraints)
@@ -276,14 +296,14 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     // MARK: - Helper methods
     
     
-    private func invalidateTimer() {
+    fileprivate func invalidateTimer() {
         timer?.invalidate()
         timer = nil
     }
     
-    private func setupTimer() {
+    fileprivate func setupTimer() {
         
-        timer = NSTimer.scheduledTimerWithTimeInterval(AutoScrollTimeInterval,
+        timer = Timer.scheduledTimer(timeInterval: AutoScrollTimeInterval,
                                                        target: self,
                                                        selector: #selector(LWCycleScrollView.timerAction),
                                                        userInfo: nil,
@@ -301,8 +321,8 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         let currentIndex = Int(collectionView.contentOffset.x / collectionView.bounds.size.width)
         let targetIndex = currentIndex + 1
         
-        collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: targetIndex, inSection: 0),
-                                               atScrollPosition: .None,
+        collectionView.scrollToItem(at: IndexPath(item: targetIndex, section: 0),
+                                               at: UICollectionViewScrollPosition(),
                                                animated: true)
         
         showContent(atIndex: targetIndex % resourceCount)
@@ -310,18 +330,18 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     
     
     /**显示对于下标的内容*/
-    private func showContent(atIndex index: Int) {
+    fileprivate func showContent(atIndex index: Int) {
         
         pageControl.currentPage = index
         
         switch pageContrlAlignment {
-        case .Center:
+        case .center:
             break
-        case .Left:
+        case .left:
             if titles?.count > index {
                 rightTitleLabel.text = titles?[index]
             }
-        case .Right:
+        case .right:
             if titles?.count > index {
                 leftTitleLabel.text = titles?[index]
             }
@@ -331,17 +351,17 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
     
     // MARK: - UICollectionViewDataSource
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return totalItemCount
     }
     
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier(CellIdentifier, forIndexPath: indexPath) as! LWCycleScrollViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CellIdentifier, for: indexPath) as! LWCycleScrollViewCell
         
         let resourceCount = totalItemCount / CountScale
-        let itemIndex = indexPath.item % resourceCount
+        let itemIndex = (indexPath as NSIndexPath).item % resourceCount
         
         // Fill content
         if let image = images?[itemIndex] {
@@ -349,9 +369,9 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         } else if let imageURL = imageURLs?[itemIndex] {
             // TODO: - 导入SDWebImage
             if let image = placeholderImage {
-                cell.imageView.sd_setImageWithURL(NSURL(string: imageURL ?? ""), placeholderImage: image)
+                cell.imageView.sd_setImage(with: URL(string: imageURL), placeholderImage: image)
             } else {
-                cell.imageView.sd_setImageWithURL(NSURL(string: imageURL ?? ""))
+                cell.imageView.sd_setImage(with: URL(string: imageURL))
             }
         } else {
             cell.imageView.image = placeholderImage
@@ -360,21 +380,21 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         return cell
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
         let resourceCount = totalItemCount / CountScale
-        let itemIndex = indexPath.item % resourceCount
+        let itemIndex = (indexPath as NSIndexPath).item % resourceCount
         
-        let cell = collectionView.cellForItemAtIndexPath(indexPath) as! LWCycleScrollViewCell
+        let cell = collectionView.cellForItem(at: indexPath) as! LWCycleScrollViewCell
         
-        didSelectedHandler?(index: itemIndex, image: cell.imageView.image)
+        didSelectedHandler?(itemIndex, cell.imageView.image)
     }
     
     
     
     // MARK: - UIScrollView delegate
     
-    func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         let currentIndex = Int(scrollView.contentOffset.x / scrollView.bounds.size.width)
         guard currentIndex == totalItemCount - 1 else {
@@ -382,17 +402,17 @@ class LWCycleScrollView: UIView, UICollectionViewDelegate, UICollectionViewDataS
         }
         
         let resourceCount = totalItemCount / CountScale
-        collectionView.scrollToItemAtIndexPath(NSIndexPath(forItem: currentIndex % resourceCount + (resourceCount * Int(CountScale / 2)), inSection: 0),
-                                               atScrollPosition: .None,
+        collectionView.scrollToItem(at: IndexPath(item: currentIndex % resourceCount + (resourceCount * Int(CountScale / 2)), section: 0),
+                                               at: UICollectionViewScrollPosition(),
                                                animated: false)
 
     }
     
-    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         invalidateTimer()
     }
     
-    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         
         let resourceCount = totalItemCount / CountScale
         let itemIndex = Int(scrollView.contentOffset.x / scrollView.bounds.size.width) % resourceCount
@@ -418,7 +438,7 @@ extension LWCycleScrollView {
      - parameter alignment:       pageControl位置
      - parameter selectedHandler: 回调
      */
-    func show(images images: [UIImage],
+    func show(images: [UIImage],
                      titles: [String]?,
                      alignment: LWCycleScrollViewPageContrlAlignment,
                      selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
@@ -441,7 +461,7 @@ extension LWCycleScrollView {
      - parameter alignment:        pageControl位置
      - parameter selectedHandler:  回调
      */
-    func show(imageURLs imageURLs: [String],
+    func show(imageURLs: [String],
                         titles: [String]?,
                         placeholderImage: UIImage?,
                         alignment: LWCycleScrollViewPageContrlAlignment,
@@ -465,7 +485,7 @@ extension LWCycleScrollView {
 
 class LWCycleScrollViewCell: UICollectionViewCell {
     
-    var imageView = UIImageView(frame: CGRectZero)
+    var imageView = UIImageView(frame: CGRect.zero)
     
     // MARK: - Initial
     
@@ -478,10 +498,10 @@ class LWCycleScrollViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setupSubViews() {
+    fileprivate func setupSubViews() {
         // ImageView
-        imageView.userInteractionEnabled = true
-        imageView.contentMode = .ScaleAspectFill
+        imageView.isUserInteractionEnabled = true
+        imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         contentView.addSubview(imageView)
 
@@ -489,20 +509,20 @@ class LWCycleScrollViewCell: UICollectionViewCell {
         addConstraints()
     }
     
-    private func addConstraints() {
+    fileprivate func addConstraints() {
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        let imgHoriConstraints = NSLayoutConstraint.constraintsWithVisualFormat("H:|[imageView]|",
-                                                                                options: .DirectionLeadingToTrailing,
+        let imgHoriConstraints = NSLayoutConstraint.constraints(withVisualFormat: "H:|[imageView]|",
+                                                                                options: NSLayoutFormatOptions(),
                                                                                 metrics: nil,
                                                                                 views: ["imageView" : imageView])
-        let imgVertiConstraints = NSLayoutConstraint.constraintsWithVisualFormat("V:|[imageView]|",
-                                                                                 options: .DirectionLeadingToTrailing,
+        let imgVertiConstraints = NSLayoutConstraint.constraints(withVisualFormat: "V:|[imageView]|",
+                                                                                 options: NSLayoutFormatOptions(),
                                                                                  metrics: nil,
                                                                                  views: ["imageView" : imageView])
         if #available(iOS 8.0, *) {
-            NSLayoutConstraint.activateConstraints(imgHoriConstraints)
-            NSLayoutConstraint.activateConstraints(imgVertiConstraints)
+            NSLayoutConstraint.activate(imgHoriConstraints)
+            NSLayoutConstraint.activate(imgVertiConstraints)
         } else {
             contentView.addConstraints(imgHoriConstraints)
             contentView.addConstraints(imgVertiConstraints)

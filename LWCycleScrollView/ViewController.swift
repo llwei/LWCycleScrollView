@@ -26,7 +26,7 @@ class ViewController: UIViewController {
         }
         bannerView1.show(images: images,
                          titles: titles,
-                         alignment: .Right) { (index, image) in
+                         alignment: .right) { (index, image) in
                             print(index)
         }
         
@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         bannerView2.show(imageURLs: imageURLs,
                          titles: nil,
                          placeholderImage: placeHolderImage,
-                         alignment: .Left) { (index, image) in
+                         alignment: .left) { (index, image) in
                             print(index)
         }
         
