@@ -439,8 +439,8 @@ extension LWCycleScrollView {
      - parameter selectedHandler: 回调
      */
     func show(images: [UIImage],
-                     titles: [String]?,
-                     alignment: LWCycleScrollViewPageContrlAlignment,
+                     titles: [String]? = nil,
+                     alignment: LWCycleScrollViewPageContrlAlignment = .center,
                      selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
     
         self.images = images
@@ -462,9 +462,9 @@ extension LWCycleScrollView {
      - parameter selectedHandler:  回调
      */
     func show(imageURLs: [String],
-                        titles: [String]?,
-                        placeholderImage: UIImage?,
-                        alignment: LWCycleScrollViewPageContrlAlignment,
+                        titles: [String]? = nil,
+                        placeholderImage: UIImage? = nil,
+                        alignment: LWCycleScrollViewPageContrlAlignment = .center,
                         selectedHandler: LWCycleScrollViewDidSelectedHandler?) {
         
         self.imageURLs = imageURLs
